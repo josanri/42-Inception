@@ -1,8 +1,17 @@
+# Using a Debian 10 Buster base image
 FROM debian:buster
-RUN apt-get update
-RUN echo "Y" | apt-get install sudo
-RUN echo "Y" | sudo apt-get install systemd
-RUN sudo apt update
-RUN echo "Y" | sudo apt install mariadb-server
-CMD sudo systemctl status mariadb
+
+# Using 3306 to interconect with other pods
 EXPOSE 3306
+
+# Install MariaDB Server
+RUN apt-get update && apt install mariadb-server -y
+
+# Mariadb database configuration
+ADD ./conf/maria.conf .
+RUN service mysql start; cat ./maria.conf | mariadb
+
+# Run mysql service
+CMD ["mysqld"]
+
+openssl req -x509 -nodes -newkey rsa:2048 -keyout josesanc.42.fr.key -out josesanc.42.fr.crt -days 365
