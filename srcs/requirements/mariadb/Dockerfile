@@ -1,17 +1,21 @@
-# Using a Debian 10 Buster base image
 FROM debian:buster
 
-# Using 3306 to interconect with other pods
-EXPOSE 3306
+ENV MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+ENV MYSQL_USER=$MYSQL_USER
+ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
+ENV MYSQL_DB_NAME=$MYSQL_DB_NAME
 
-# Install MariaDB Server
-RUN apt-get update && apt install mariadb-server -y
+# Instalar dependencias y herramientas necesarias
+RUN apt-get update && apt-get install -y mariadb-server
 
-# Mariadb database configuration
-ADD ./conf/maria.conf .
-RUN service mysql start; cat ./maria.conf | mariadb
+# Copiar el archivo de configuración personalizado
+COPY conf/init-maria.sh /mariadb/init-maria.sh
+
+# Iniciar el servicio de MariaDB y configurar la base de datos
+RUN service mysql start && mysql -sfu root < mariadb/init-maria.sh
 
 # Run mysql service
 CMD ["mysqld"]
 
-openssl req -x509 -nodes -newkey rsa:2048 -keyout josesanc.42.fr.key -out josesanc.42.fr.crt -days 365
+# Using 3306 to interconect with other pods
+EXPOSE 3306

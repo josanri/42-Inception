@@ -5,7 +5,7 @@ $(NAME):
 
 run:
 	cd srcs
-	docker-compose up -c docker-compose.yml
+	docker compose up -c docker-compose.yml --build --force-recreate
 
 prune:
 	docker image prune

@@ -2,58 +2,72 @@
 version: "3.9"
 services:
   nginx:
-    image: nginx
-    container_name: nginx
+    container_name: nginx-inception
+    image: nginx-inception:latest
     build:
-        context: ./requirements/nginx
-        dockerfile: Dockerfile
-    restart_policy: on-failure # Restart on crash
-    depends_on:
-      - wordpress
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    restart: on-failure # Restart on crash
+    # depends_on:
+    #   - wordpress
     ports:
       - 443:443
-    networks:
-      - webnet
-  wordpress:
-    build:
-        context: ./requirements/wordpress
-        dockerfile: Dockerfile
-    restart_policy: on-failure # Restart on crash
     volumes:
-      - wordpress_data:/var/www/html/wp-content
-    depends_on:
-      mariadb:
-        condition: service_healthy
+    - type: volume
+      source: wordpress_data
+      target: /var/www/html/wordpress
     networks:
-      - webnet
-  mariadb:
+      - wp-net
+  wordpress:
+    container_name: wordpress-inception
+    image: wordpress-inception:latest
     build:
-        context: ./requirements/mariadb
-        dockerfile: Dockerfile
-        args:
-          - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
-          - MYSQL_USER=$MYSQL_USER
-          - MYSQL_PASSWORD=$MYSQL_PASSWORD
-          - MYSQL_DB_NAME=$MYSQL_DB_NAME
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+      args:
+        - MYSQL_USER=$MYSQL_USER
+        - MYSQL_PASSWORD=$MYSQL_PASSWORD
+        - MYSQL_DB_NAME=$MYSQL_DB_NAME
+        - AUTH_KEY=$AUTH_KEY
+        - SECURE_AUTH_KEY=$SECURE_AUTH_KEY
+        - LOGGED_IN_KEY=$LOGGED_IN_KEY
+        - NONCE_KEY=$NONCE_KEY
+        - AUTH_SALT=$AUTH_SALT
+        - SECURE_AUTH_SALT=$SECURE_AUTH_SALT
+        - LOGGED_IN_SALT=$LOGGED_IN_SALT
+        - NONCE_SALT=$NONCE_SALT
+    restart: on-failure # Restart on crash
+    depends_on:
+      - mariadb
+    volumes:
+      - type: volume
+        source: wordpress_data
+        target: /var/www/html/wordpress
+    networks:
+      - wp-net
+  mariadb:
+    container_name: mariadb-inception
+    image: mariadb-inception:latest
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - MYSQL_USER=$MYSQL_USER
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+      - MYSQL_DB_NAME=$MYSQL_DB_NAME
+    restart: on-failure # Restart on crash
     volumes:
       - mariadb_data:/var/lib/mysql
-    restart_policy: on-failure # Restart on crash
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
     networks:
-      - webnet
+      - wp-net
 
 volumes:
   mariadb_data:
+    name: mariadb_data
   wordpress_data:
+    name: wordpress_data
 
 networks:
-  webnet:
-
-secrets:
-  certificate:
-    file: ${}
-  certificate_key:
-    file: 
+  wp-net:
+    name: wp-net

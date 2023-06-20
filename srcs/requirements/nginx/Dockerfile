@@ -4,12 +4,13 @@ FROM debian:buster
 # Install nginx
 RUN apt-get update && apt-get install -y nginx
 
-# COPY ./conf./nginx.conf /etc/nginx/nginx.conf
-# RUN sed -i 's/TLSv1 TLSv1.1 TLSv1.2/TLSv1.2 TLSv1.3/g' /etc/nginx/nginx.conf
-ADD ./conf/nginx.conf /etc/nginx/nginx.conf
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+COPY ./conf/josesanc.42.fr.crt /run/secrets/josesanc.42.fr.crt
+COPY ./conf/josesanc.42.fr.key /run/secrets/josesanc.42.fr.key
 
 # Expose the port 443 for the host machine
 EXPOSE 443
 
-# Execute nginx as PID 1
 CMD [ "nginx", "-g", "daemon off;" ]
+
+# openssl req -x509 -nodes -newkey rsa:2048 -keyout josesanc.42.fr.key -out josesanc.42.fr.crt -days 365
