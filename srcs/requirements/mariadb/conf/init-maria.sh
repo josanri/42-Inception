@@ -17,6 +17,5 @@ CREATE DATABASE $MYSQL_DB_NAME
 
 GRANT ALL PRIVILEGES ON $MYSQL_DB_NAME.* to $MYSQL_USER@nginx identified by '$MYSQL_PASSWORD';
 
-
 # Make our changes take effect
 FLUSH PRIVILEGES;
