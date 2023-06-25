@@ -1,18 +1,18 @@
 FROM debian:buster
 
-ENV MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
-ENV MYSQL_USER=$MYSQL_USER
-ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
-ENV MYSQL_DB_NAME=$MYSQL_DB_NAME
-
 # Instalar dependencias y herramientas necesarias
 RUN apt-get update && apt-get install -y mariadb-server
 
-# Copiar el archivo de configuración personalizado
-COPY conf/init-maria.sh /mariadb/init-maria.sh
+ARG MYSQL_ROOT_PASSWORD
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+ARG MYSQL_DB_NAME
 
-# Iniciar el servicio de MariaDB y configurar la base de datos
-RUN service mysql start && mysql -sfu root < mariadb/init-maria.sh
+# Copiar el archivo de configuración personalizado
+COPY tools/init-maria.sh /mariadb/init-maria.sh
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+
+RUN service mysql start && ./mariadb/init-maria.sh
 
 # Run mysql service
 CMD ["mysqld"]
