@@ -3,7 +3,7 @@ version: "3.8"
 services:
   nginx:
     container_name: nginx-inception
-    image: nginx-inception:latest
+    image: nginx-inception
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
@@ -20,7 +20,7 @@ services:
       - wp-net
   wordpress:
     container_name: wordpress-inception
-    image: wordpress-inception:latest
+    image: wordpress-inception
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
@@ -48,7 +48,7 @@ services:
       - wp-net
   mariadb:
     container_name: mariadb-inception
-    image: mariadb-inception:latest
+    image: mariadb-inception
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
@@ -66,18 +66,18 @@ services:
 volumes:
   mariadb_data:
     name: mariadb_data
-    # driver: local
-    # driver_opts:
-    #     type: none
-    #     o: bind
-    #     device: /home/josesanc/data/mariadb_data
+    driver: local
+    driver_opts:
+        type: none
+        o: bind
+        device: /home/josesanc/data/mariadb_data
   wordpress_data:
     name: wordpress_data
-    # driver: local
-    # driver_opts:
-    #     type: none
-    #     o: bind
-    #     device: /home/josesanc/data/wordpress_data
+    driver: local
+    driver_opts:
+        type: none
+        o: bind
+        device: /home/josesanc/data/wordpress_data
 
 networks:
   wp-net:

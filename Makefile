@@ -5,9 +5,10 @@ $(NAME):
 
 run:
 	cd srcs
-	docker compose up -c docker-compose.yml --build --force-recreate
+	docker compose up -f docker-compose.yml --build --force-recreate
 
 prune:
+	docker container prune
 	docker image prune
 	docker volume prune
 
